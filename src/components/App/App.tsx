@@ -19,7 +19,7 @@ function App() {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isError, setIsError] = useState<boolean>(false)
   const [movies, setMovies] = useState<Movie[]>([])
-  const [selectedMovie, setSelectedMovie] = useState<Movie>(movies[0])
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null)
 
 
   const onMovieSelect = (movie: Movie) => {
@@ -32,6 +32,7 @@ function App() {
   }
   const handleSearch = async (query: string) => {
     try {
+      setIsError(false)
       setIsLoading(true)
       const fetchedMovies: Movie[] = await fetchMovies(query)
       if (fetchedMovies.length == 0) {
@@ -54,7 +55,7 @@ function App() {
 
   return (
     <>
-      <SearchBar onSearch={handleSearch}></SearchBar>
+      <SearchBar onSubmit={handleSearch}></SearchBar>
 
       <div>
         <Toaster />

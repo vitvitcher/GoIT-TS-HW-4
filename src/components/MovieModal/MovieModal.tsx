@@ -4,7 +4,7 @@ import css from './MovieModal.module.css'
 import { useEffect } from "react";
 
 interface MovieModalProps {
-  movie: Movie,
+  movie: Movie | null,
   onClose: () => void;
 }
 

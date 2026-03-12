@@ -11,5 +11,7 @@ const options = {
 
 
 export async function fetchMovies(query: string): Promise<Movie[]> {
-    return (await axios.get(url + `&query=${query}`, options)).data.results
+
+    const results: Movie[] = (await axios.get(url + `&query=${query}`, options)).data.results
+    return results
 }
