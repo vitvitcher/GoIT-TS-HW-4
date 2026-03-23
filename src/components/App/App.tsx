@@ -8,6 +8,8 @@ import MovieGrid from '../MovieGrid/MovieGrid';
 import MovieModal from '../MovieModal/MovieModal';
 import Loader from '../Loader/Loader';
 import ErrorMessage from '../ErrorMessage/ErrorMessage';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import Pagination from '../Pagination/Pagination';
 
 
 
@@ -15,10 +17,21 @@ function App() {
   console.log("App rendered")
   const notify = () => toast.error('No movies found for your request.');
 
-  const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [isError, setIsError] = useState<boolean>(false)
-  const [movies, setMovies] = useState<Movie[]>([])
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [query, setQuery] = useState("");
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null)
+
+  const { data, isLoading, isError, isSuccess } = useQuery({
+    queryKey: ['movies', query, currentPage],
+    queryFn: () => fetchMovies(query, currentPage + 1),
+    enabled: query !== '',
+    placeholderData: keepPreviousData,
+  })
+
+  const totalPages = data?.total_pages ?? 0;
+  console.log("total pages:" + totalPages)
+
   const onMovieSelect = (movie: Movie) => {
     setSelectedMovie(movie)
   }
@@ -26,40 +39,26 @@ function App() {
   const onModalClose = () => {
     setSelectedMovie(null)
   }
-  const handleSearch = async (query: string) => {
-    try {
-      setMovies([])
-      setIsError(false)
-      setIsLoading(true)
-      const fetchedMovies: Movie[] = await fetchMovies(query)
-      if (fetchedMovies.length == 0) {
-        notify()
-      } else {
-        setMovies(fetchedMovies)
-      }
-
-
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      setIsError(true)
-    }
-    finally {
-      setIsLoading(false)
-    }
-
-
+  const handleSearch = async (newQuery: string) => {
+    setQuery(newQuery)
+    setCurrentPage(1)
   }
+
+
 
   return (
     <>
       <SearchBar onSubmit={handleSearch}></SearchBar>
-
       <div>
         <Toaster />
       </div>
+      {isSuccess && totalPages > 1 && (<Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage} />)}
       {isLoading && <Loader></Loader>}
       {isError && <ErrorMessage ></ErrorMessage>}
-      {movies.length > 0 && <MovieGrid onSelect={onMovieSelect} movies={movies}></MovieGrid>}
+      {data && data.results.length > 0 && <MovieGrid onSelect={onMovieSelect} movies={data.results}></MovieGrid>}
       {selectedMovie && <MovieModal onClose={onModalClose} movie={selectedMovie}
       ></MovieModal>}
     </>
