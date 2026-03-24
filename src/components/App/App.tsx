@@ -31,13 +31,12 @@ function App() {
 
   const totalPages = data?.total_pages ?? 0;
   useEffect(() => {
-    if (data?.results ?? false) {
+    if (data?.results.length == 0) {
+      console.log(data.results)
       notify()
     }
-  }
-    , [data])
+  }, [data])
 
-  console.log("total pages:" + totalPages)
 
   const onMovieSelect = (movie: Movie) => {
     setSelectedMovie(movie)
