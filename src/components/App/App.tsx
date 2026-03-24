@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.module.css'
 import toast, { Toaster } from 'react-hot-toast';
 import type { Movie } from '../../types/movie';
@@ -30,6 +30,13 @@ function App() {
   })
 
   const totalPages = data?.total_pages ?? 0;
+  useEffect(() => {
+    if (data?.results ?? false) {
+      notify()
+    }
+  }
+    , [data])
+
   console.log("total pages:" + totalPages)
 
   const onMovieSelect = (movie: Movie) => {
@@ -54,7 +61,7 @@ function App() {
       </div>
       {isSuccess && totalPages > 1 && (<Pagination
         currentPage={currentPage}
-        totalPages={totalPages}
+        totalPages={totalPages - 1}
         onPageChange={setCurrentPage} />)}
       {isLoading && <Loader></Loader>}
       {isError && <ErrorMessage ></ErrorMessage>}
