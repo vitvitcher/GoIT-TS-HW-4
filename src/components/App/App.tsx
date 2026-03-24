@@ -24,18 +24,18 @@ function App() {
 
   const { data, isLoading, isError, isSuccess } = useQuery({
     queryKey: ['movies', query, currentPage],
-    queryFn: () => fetchMovies(query, currentPage + 1),
+    queryFn: () => fetchMovies(query, currentPage),
     enabled: query !== '',
     placeholderData: keepPreviousData,
   })
 
   const totalPages = data?.total_pages ?? 0;
   useEffect(() => {
-    if (data?.results.length == 0) {
+    if (isSuccess && data.results.length == 0) {
       console.log(data.results)
       notify()
     }
-  }, [data])
+  }, [data, isSuccess])
 
 
   const onMovieSelect = (movie: Movie) => {
@@ -60,7 +60,7 @@ function App() {
       </div>
       {isSuccess && totalPages > 1 && (<Pagination
         currentPage={currentPage}
-        totalPages={totalPages - 1}
+        totalPages={totalPages}
         onPageChange={setCurrentPage} />)}
       {isLoading && <Loader></Loader>}
       {isError && <ErrorMessage ></ErrorMessage>}
